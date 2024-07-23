@@ -78,8 +78,7 @@
             transition: opacity 0.3s ease;
         }
         #shareButton {
-            background-image: url('background.jpg');
-            background-size: cover;
+            background-color: #4267B2;
             color: white;
             font-family: 'Rubik', cursive;
             font-size: 18px;
@@ -136,10 +135,13 @@
         const hangmanParts = document.querySelectorAll('.hangman-part');
 
         // Load friends list from external file
-        fetch('Friends_name.js')
-            .then(response => response.json())
+        fetch('Friends_name.txt')
+            .then(response => response.text())
             .then(data => {
-                friends = data;
+                friends = data.split('\n').map(line => {
+                    const [name, hint] = line.split('|');
+                    return { name: name.trim(), hint: hint.trim() };
+                });
                 startNewGame();
             })
             .catch(error => console.error('Error loading friends list:', error));
@@ -221,18 +223,69 @@
             });
         }
 
-        function shareResult(isWin) {
+        function createShareImage(message) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    ctx.font = 'bold 30px Rubik';
+                    ctx.fillStyle = 'white';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    const maxWidth = canvas.width - 40;
+                    const lineHeight = 40;
+                    const words = message.split(' ');
+                    let line = '';
+                    let y = canvas.height / 2;
+                    
+                    for (let n = 0; n < words.length; n++) {
+                        const testLine = line + words[n] + ' ';
+                        const metrics = ctx.measureText(testLine);
+                        const testWidth = metrics.width;
+                        if (testWidth > maxWidth && n > 0) {
+                            ctx.fillText(line, canvas.width / 2, y);
+                            line = words[n] + ' ';
+                            y += lineHeight;
+                        }
+                        else {
+                            line = testLine;
+                        }
+                    }
+                    ctx.fillText(line, canvas.width / 2, y);
+                    
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = 'background.jpg';  // Make sure this image exists in your directory
+            });
+        }
+
+        async function shareResult(isWin) {
             const message = isWin 
                 ? `ניצחתי במשחק "נחש את החבר"! ניחשתי את השם "${currentWord}" תוך ${10 - remainingGuesses} ניחושים.` 
                 : `לא הצלחתי לנחש את השם "${currentWord}" במשחק "נחש את החבר". אולי אתם תצליחו?`;
             
+            const shareImage = await createShareImage(message);
+            
             if (navigator.share) {
+                const blob = await (await fetch(shareImage)).blob();
+                const file = new File([blob], 'share.png', { type: 'image/png' });
                 navigator.share({
                     title: 'תוצאת המשחק "נחש את החבר"',
-                    text: message
+                    text: message,
+                    files: [file]
                 }).catch(console.error);
             } else {
-                alert(message + "\n\nהעתק הודעה זו ושתף עם חבריך!");
+                const link = document.createElement('a');
+                link.href = shareImage;
+                link.download = 'share.png';
+                link.click();
+                alert("התמונה הורדה. שתף אותה עם חבריך!");
             }
         }
 
