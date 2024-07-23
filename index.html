@@ -265,31 +265,44 @@
             });
         }
 
-        async function shareResult(isWin) {
-            const message = isWin 
-                ? `ניצחתי במשחק "נחש את החבר"! ניחשתי את השם "${currentWord}" תוך ${10 - remainingGuesses} ניחושים.` 
-                : `לא הצלחתי לנחש את השם "${currentWord}" במשחק "נחש את החבר". אולי אתם תצליחו?`;
-            
-            const shareImage = await createShareImage(message);
-            
-            if (navigator.share) {
-                const blob = await (await fetch(shareImage)).blob();
-                const file = new File([blob], 'share.png', { type: 'image/png' });
-                navigator.share({
-                    title: 'תוצאת המשחק "נחש את החבר"',
-                    text: message,
-                    files: [file]
-                }).catch(console.error);
-            } else {
-                const link = document.createElement('a');
-                link.href = shareImage;
-                link.download = 'share.png';
-                link.click();
-                alert("התמונה הורדה. שתף אותה עם חבריך!");
-            }
-        }
+        
+if (normalizedCurrentWord === normalizedGuessedWord) {
+                messageElement.textContent = 'כל הכבוד! ניצחת!';
+                endGame(true);
+            } else if (remainingGuesses === 0) {
+                messageElement.textContent = `המשחק נגמר. השם היה: ${currentWord}`;
+                endGame(false);
+            }
+        } 
 
-        newGameButton.addEventListener('click', startNewGame);
-    </script>
+        function endGame(isWin) {
+            disableKeyboard();
+            shareButton.style.display = 'inline-block';
+            shareButton.onclick = () => shareResult(isWin);
+        } 
+
+        function disableKeyboard() {
+            Array.from(keyboardElement.children).forEach(button => {
+                button.disabled = true;
+            });
+        } 
+
+        function shareResult(isWin) {
+            const message = isWin 
+                ? `ניצחתי במשחק "נחש את החבר"! ניחשתי את השם "${currentWord}" תוך ${10 - remainingGuesses} ניחושים.` 
+                : `לא הצלחתי לנחש את השם "${currentWord}" במשחק "נחש את החבר". אולי אתם תצליחו?`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'תוצאת המשחק "נחש את החבר"',
+                    text: message
+                }).catch(console.error);
+            } else {
+                alert(message + "\n\nהעתק הודעה זו ושתף עם חבריך!");
+            }
+        } 
+
+        newGameButton.addEventListener('click', startNewGame);
+    </script>
 </body>
 </html>
