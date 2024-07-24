@@ -196,11 +196,12 @@
             const normalizedCurrentWord = currentWord.replace(/[םןךףץ]/g, match => {
                 return { 'ם': 'מ', 'ן': 'נ', 'ך': 'כ', 'ף': 'פ', 'ץ': 'צ' }[match];
             });
-            const normalizedGuessedWord = wordElement.textContent.replace(/\s/g, '').replace(/[םןךףץ]/g, match => {
-                return { 'ם': 'מ', 'ן': 'נ', 'ך': 'כ', 'ף': 'פ', 'ץ': 'צ' }[match];
-            });
+            
+            const isWordGuessed = normalizedCurrentWord.split('').every(letter => 
+                guessedLetters.includes(letter) || letter === ' '
+            );
 
-            if (normalizedCurrentWord === normalizedGuessedWord) {
+            if (isWordGuessed) {
                 messageElement.textContent = 'כל הכבוד! ניצחת! גילית את שם החבר בהצלחה!';
                 endGame(true);
             } else if (remainingGuesses === 0) {
