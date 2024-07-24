@@ -103,7 +103,6 @@
             <line x1="140" y1="140" x2="120" y2="160" class="hangman-part" />
             <line x1="140" y1="140" x2="160" y2="160" class="hangman-part" />
             <line x1="140" y1="180" x2="120" y2="210" class="hangman-part" />
-            <line x1="140" y1="180" x2="160" y2="210" class="hangman-part" />
         </svg>
         <div id="hint" class="hint"></div>
         <div id="word" class="word"></div>
@@ -119,7 +118,7 @@
         let currentWord = '';
         let currentHint = '';
         let guessedLetters = [];
-        let remainingGuesses = 10;
+        let remainingGuesses = 9;
 
         const wordElement = document.getElementById('word');
         const hintElement = document.getElementById('hint');
@@ -146,7 +145,7 @@
             currentWord = randomFriend.name;
             currentHint = randomFriend.hint;
             guessedLetters = [];
-            remainingGuesses = 10;
+            remainingGuesses = 9;
             updateDisplay();
             createKeyboard();
             messageElement.textContent = '';
@@ -189,7 +188,7 @@
         }
 
         function updateHangman() {
-            hangmanParts[10 - remainingGuesses].style.opacity = '1';
+            hangmanParts[9 - remainingGuesses].style.opacity = '1';
         }
 
         function checkGameStatus() {
@@ -267,7 +266,7 @@
         async function shareResult() {
             const isWin = remainingGuesses > 0;
             const message = isWin 
-                ? `ניצחתי במשחק "נחש את החבר"! ניחשתי את השם "${currentWord}" תוך ${10 - remainingGuesses} ניחושים.` 
+                ? `ניצחתי במשחק "נחש את החבר"! ניחשתי את השם "${currentWord}" תוך ${9 - remainingGuesses} ניחושים.` 
                 : `לא הצלחתי לנחש את השם "${currentWord}" במשחק "נחש את החבר". אולי אתם תצליחו?`;
             
             const shareImage = await createShareImage(message);
