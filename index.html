@@ -188,7 +188,7 @@
         }
 
         function updateHangman() {
-            hangmanParts[9 - remainingGuesses].style.opacity = '1';
+            hangmanParts[9 - remainingGuesses - 1].style.opacity = '1';
         }
 
         function checkGameStatus() {
@@ -202,7 +202,7 @@
             if (normalizedCurrentWord === normalizedGuessedWord) {
                 messageElement.textContent = 'כל הכבוד! ניצחת!';
                 endGame(true);
-            } else if (remainingGuesses <= 0) {
+            } else if (remainingGuesses === 0) {
                 messageElement.textContent = `המשחק הסתיים. לא הצלחת לנחש את השם: ${currentWord}`;
                 endGame(false);
             }
@@ -212,8 +212,6 @@
             disableKeyboard();
             newGameButton.style.display = 'inline-block';
             shareButton.style.display = 'inline-block';
-            remainingGuesses = 0;
-            updateDisplay();
         }
 
         function disableKeyboard() {
