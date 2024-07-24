@@ -13,11 +13,12 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-image: url('whatsapp_background.jpg');
+            background-size: cover;
         }
         .game-container {
             text-align: center;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -57,6 +58,9 @@
         button:disabled {
             background-color: #cccccc;
         }
+        button.guessed {
+            background-color: orange;
+        }
         .message {
             font-size: 18px;
             font-weight: bold;
@@ -67,54 +71,24 @@
             font-size: 18px;
             margin: 10px 0;
         }
-        .hangman {
-            width: 200px;
-            height: 250px;
-            margin: 0 auto;
-        }
-        .hangman-part {
-            stroke: #333;
-            stroke-width: 3;
-            transition: opacity 0.3s ease;
+        #newGameButton, #shareButton {
+            margin-top: 20px;
+            display: none;
         }
         #shareButton {
             background-color: #4267B2;
-            color: white;
-            font-family: 'Rubik', cursive;
-            font-size: 18px;
-            padding: 15px 30px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        #shareButton:hover {
-            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>נחש את החבר בקבוצת החברים הצדיקים</h1>
-        <svg class="hangman" viewBox="0 0 200 250">
-            <line x1="20" y1="230" x2="100" y2="230" class="hangman-part" />
-            <line x1="60" y1="230" x2="60" y2="50" class="hangman-part" />
-            <line x1="60" y1="50" x2="140" y2="50" class="hangman-part" />
-            <line x1="140" y1="50" x2="140" y2="80" class="hangman-part" />
-            <circle cx="140" cy="100" r="20" fill="none" class="hangman-part" />
-            <line x1="140" y1="120" x2="140" y2="180" class="hangman-part" />
-            <line x1="140" y1="140" x2="120" y2="160" class="hangman-part" />
-            <line x1="140" y1="140" x2="160" y2="160" class="hangman-part" />
-            <line x1="140" y1="180" x2="120" y2="210" class="hangman-part" />
-            <line x1="140" y1="180" x2="160" y2="210" class="hangman-part" />
-        </svg>
         <div id="hint" class="hint"></div>
         <div id="word" class="word"></div>
         <div id="guesses" class="guesses"></div>
         <div id="message" class="message"></div>
         <div id="keyboard" class="keyboard"></div>
-        <button id="newGame">משחק חדש</button>
+        <button id="newGameButton">משחק חדש</button>
         <button id="shareButton">שתף את התוצאה</button>
     </div>
 
@@ -130,11 +104,9 @@
         const guessesElement = document.getElementById('guesses');
         const messageElement = document.getElementById('message');
         const keyboardElement = document.getElementById('keyboard');
-        const newGameButton = document.getElementById('newGame');
+        const newGameButton = document.getElementById('newGameButton');
         const shareButton = document.getElementById('shareButton');
-        const hangmanParts = document.querySelectorAll('.hangman-part');
 
-        // Load friends list from external file
         fetch('Friends_name.txt')
             .then(response => response.text())
             .then(data => {
@@ -155,8 +127,8 @@
             updateDisplay();
             createKeyboard();
             messageElement.textContent = '';
+            newGameButton.style.display = 'none';
             shareButton.style.display = 'none';
-            hangmanParts.forEach(part => part.style.opacity = '0');
         }
 
         function updateDisplay() {
@@ -179,19 +151,16 @@
         }
 
         function guessLetter(letter) {
-            if (!guessedLetters.includes(letter)) {
+            if (!guessedLetters.includes(letter) && remainingGuesses > 0) {
                 guessedLetters.push(letter);
+                const button = Array.from(keyboardElement.children).find(btn => btn.textContent === letter);
+                button.classList.add('guessed');
                 if (!currentWord.includes(letter)) {
                     remainingGuesses--;
-                    updateHangman();
                 }
                 updateDisplay();
                 checkGameStatus();
             }
-        }
-
-        function updateHangman() {
-            hangmanParts[10 - remainingGuesses].style.opacity = '1';
         }
 
         function checkGameStatus() {
@@ -206,15 +175,15 @@
                 messageElement.textContent = 'כל הכבוד! ניצחת!';
                 endGame(true);
             } else if (remainingGuesses === 0) {
-                messageElement.textContent = `המשחק נגמר. השם היה: ${currentWord}`;
+                messageElement.textContent = `המשחק הסתיים. לא הצלחת לנחש את השם: ${currentWord}`;
                 endGame(false);
             }
         }
 
         function endGame(isWin) {
             disableKeyboard();
+            newGameButton.style.display = 'inline-block';
             shareButton.style.display = 'inline-block';
-            shareButton.onclick = () => shareResult(isWin);
         }
 
         function disableKeyboard() {
@@ -228,7 +197,6 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const img = new Image();
-                img.crossOrigin = "Anonymous";
                 img.onload = () => {
                     canvas.width = img.width;
                     canvas.height = img.height;
@@ -261,48 +229,37 @@
                     
                     resolve(canvas.toDataURL('image/png'));
                 };
-                img.src = 'background.jpg';  // Make sure this image exists in your directory
+                img.src = 'background.jpg';
             });
         }
 
-        
-if (normalizedCurrentWord === normalizedGuessedWord) {
-                messageElement.textContent = 'כל הכבוד! ניצחת!';
-                endGame(true);
-            } else if (remainingGuesses === 0) {
-                messageElement.textContent = `המשחק נגמר. השם היה: ${currentWord}`;
-                endGame(false);
-            }
-        } 
+        async function shareResult() {
+            const isWin = remainingGuesses > 0;
+            const message = isWin 
+                ? `ניצחתי במשחק "נחש את החבר"! ניחשתי את השם "${currentWord}" תוך ${10 - remainingGuesses} ניחושים.` 
+                : `לא הצלחתי לנחש את השם "${currentWord}" במשחק "נחש את החבר". אולי אתם תצליחו?`;
+            
+            const shareImage = await createShareImage(message);
+            
+            if (navigator.share) {
+                const blob = await (await fetch(shareImage)).blob();
+                const file = new File([blob], 'share.png', { type: 'image/png' });
+                navigator.share({
+                    title: 'תוצאת המשחק "נחש את החבר"',
+                    text: message,
+                    files: [file]
+                }).catch(console.error);
+            } else {
+                const link = document.createElement('a');
+                link.href = shareImage;
+                link.download = 'share.png';
+                link.click();
+                alert("התמונה הורדה. שתף אותה עם חבריך!");
+            }
+        }
 
-        function endGame(isWin) {
-            disableKeyboard();
-            shareButton.style.display = 'inline-block';
-            shareButton.onclick = () => shareResult(isWin);
-        } 
-
-        function disableKeyboard() {
-            Array.from(keyboardElement.children).forEach(button => {
-                button.disabled = true;
-            });
-        } 
-
-        function shareResult(isWin) {
-            const message = isWin 
-                ? `ניצחתי במשחק "נחש את החבר"! ניחשתי את השם "${currentWord}" תוך ${10 - remainingGuesses} ניחושים.` 
-                : `לא הצלחתי לנחש את השם "${currentWord}" במשחק "נחש את החבר". אולי אתם תצליחו?`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'תוצאת המשחק "נחש את החבר"',
-                    text: message
-                }).catch(console.error);
-            } else {
-                alert(message + "\n\nהעתק הודעה זו ושתף עם חבריך!");
-            }
-        } 
-
-        newGameButton.addEventListener('click', startNewGame);
-    </script>
+        newGameButton.addEventListener('click', startNewGame);
+        shareButton.addEventListener('click', shareResult);
+    </script>
 </body>
 </html>
