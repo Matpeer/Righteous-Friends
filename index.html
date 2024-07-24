@@ -198,7 +198,12 @@
             });
             
             const isWordGuessed = normalizedCurrentWord.split('').every(letter => 
-                guessedLetters.includes(letter) || letter === ' '
+                guessedLetters.includes(letter) || letter === ' ' ||
+                (letter === 'מ' && guessedLetters.includes('ם')) ||
+                (letter === 'נ' && guessedLetters.includes('ן')) ||
+                (letter === 'כ' && guessedLetters.includes('ך')) ||
+                (letter === 'פ' && guessedLetters.includes('ף')) ||
+                (letter === 'צ' && guessedLetters.includes('ץ'))
             );
 
             if (isWordGuessed) {
