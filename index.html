@@ -201,7 +201,7 @@
             });
 
             if (normalizedCurrentWord === normalizedGuessedWord) {
-                messageElement.textContent = 'כל הכבוד! ניצחת!';
+                messageElement.textContent = 'כל הכבוד! ניצחת! גילית את שם החבר בהצלחה!';
                 endGame(true);
             } else if (remainingGuesses === 0) {
                 messageElement.textContent = `המשחק הסתיים. לא הצלחת לנחש את השם: ${currentWord}`;
@@ -213,6 +213,12 @@
             disableKeyboard();
             newGameButton.style.display = 'inline-block';
             shareButton.style.display = 'inline-block';
+            if (isWin) {
+                remainingGuesses = Math.max(1, remainingGuesses);
+            } else {
+                remainingGuesses = 0;
+            }
+            updateDisplay();
         }
 
         function disableKeyboard() {
