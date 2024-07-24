@@ -78,11 +78,33 @@
         #shareButton {
             background-color: #4267B2;
         }
+        .hangman {
+            width: 200px;
+            height: 250px;
+            margin: 0 auto;
+        }
+        .hangman-part {
+            stroke: #333;
+            stroke-width: 3;
+            transition: opacity 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>נחש את החבר בקבוצת החברים הצדיקים</h1>
+        <svg class="hangman" viewBox="0 0 200 250">
+            <line x1="20" y1="230" x2="100" y2="230" class="hangman-part" />
+            <line x1="60" y1="230" x2="60" y2="50" class="hangman-part" />
+            <line x1="60" y1="50" x2="140" y2="50" class="hangman-part" />
+            <line x1="140" y1="50" x2="140" y2="80" class="hangman-part" />
+            <circle cx="140" cy="100" r="20" fill="none" class="hangman-part" />
+            <line x1="140" y1="120" x2="140" y2="180" class="hangman-part" />
+            <line x1="140" y1="140" x2="120" y2="160" class="hangman-part" />
+            <line x1="140" y1="140" x2="160" y2="160" class="hangman-part" />
+            <line x1="140" y1="180" x2="120" y2="210" class="hangman-part" />
+            <line x1="140" y1="180" x2="160" y2="210" class="hangman-part" />
+        </svg>
         <div id="hint" class="hint"></div>
         <div id="word" class="word"></div>
         <div id="guesses" class="guesses"></div>
@@ -106,6 +128,7 @@
         const keyboardElement = document.getElementById('keyboard');
         const newGameButton = document.getElementById('newGameButton');
         const shareButton = document.getElementById('shareButton');
+        const hangmanParts = document.querySelectorAll('.hangman-part');
 
         fetch('Friends_name.txt')
             .then(response => response.text())
@@ -129,6 +152,7 @@
             messageElement.textContent = '';
             newGameButton.style.display = 'none';
             shareButton.style.display = 'none';
+            hangmanParts.forEach(part => part.style.opacity = '0');
         }
 
         function updateDisplay() {
@@ -142,7 +166,7 @@
 
         function createKeyboard() {
             keyboardElement.innerHTML = '';
-            'אבגדהוזחטיכלמנסעפצקרשתםףךץ'.split('').forEach(letter => {
+            'אבגדהוזחטיכלמנסעפצקרשתםףךץן'.split('').forEach(letter => {
                 const button = document.createElement('button');
                 button.textContent = letter;
                 button.addEventListener('click', () => guessLetter(letter));
@@ -157,10 +181,15 @@
                 button.classList.add('guessed');
                 if (!currentWord.includes(letter)) {
                     remainingGuesses--;
+                    updateHangman();
                 }
                 updateDisplay();
                 checkGameStatus();
             }
+        }
+
+        function updateHangman() {
+            hangmanParts[10 - remainingGuesses].style.opacity = '1';
         }
 
         function checkGameStatus() {
