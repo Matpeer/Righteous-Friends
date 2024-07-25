@@ -49,20 +49,3 @@
     </script>
 </body>
 </html>
-```
-
-השינויים העיקריים:
-
-1. בפונקציית `updateDisplay`:
-   ```javascript
-   function updateDisplay() {
-       const words = currentWord.split(' ');
-       const displayedWords = words.map(word => 
-           word.split('')
-               .map(letter => (guessedLetters.includes(letter) ? letter : '_'))
-               .join(' ')
-       );
-       wordElement.textContent = displayedWords.join('  '); // שני רווחים בין המילים
-       hintElement.textContent = `רמז: ${currentHint}`;
-       guessesElement.textContent = `ניחושים נותרים: ${Math.max(0, remainingGuesses)}`;
-   }
