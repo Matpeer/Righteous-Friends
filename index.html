@@ -139,7 +139,10 @@
                 });
                 startNewGame();
             })
-            .catch(error => console.error('Error loading friends list:', error));
+            .catch(error => {
+                console.error('Error loading friends list:', error);
+                messageElement.textContent = 'שגיאה בטעינת רשימת החברים. אנא רענן את הדף.';
+            });
 
         function startNewGame() {
             const randomFriend = friends[Math.floor(Math.random() * friends.length)];
@@ -156,10 +159,20 @@
         }
 
         function updateDisplay() {
-            wordElement.textContent = currentWord
+            const displayedWord = currentWord
                 .split('')
-                .map(letter => (guessedLetters.includes(letter) || letter === ' ' ? letter : '_'))
+                .map((letter, index) => {
+                    if (letter === ' ') {
+                        return '  '; // שני רווחים במקום רווח אחד
+                    } else if (guessedLetters.includes(letter)) {
+                        return letter;
+                    } else {
+                        return '_';
+                    }
+                })
                 .join(' ');
+            
+            wordElement.textContent = displayedWord;
             hintElement.textContent = `רמז: ${currentHint}`;
             guessesElement.textContent = `ניחושים נותרים: ${Math.max(0, remainingGuesses)}`;
         }
@@ -198,7 +211,7 @@
             });
             
             const isWordGuessed = normalizedCurrentWord.split('').every(letter => 
-                guessedLetters.includes(letter) || letter === ' ' ||
+                letter === ' ' || guessedLetters.includes(letter) ||
                 (letter === 'מ' && guessedLetters.includes('ם')) ||
                 (letter === 'נ' && guessedLetters.includes('ן')) ||
                 (letter === 'כ' && guessedLetters.includes('ך')) ||
